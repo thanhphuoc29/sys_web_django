@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết sản phẩm</title>
+    <link rel="stylesheet" href="/static/css/admin.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+
+<body>
+    {% block content %}
+    <header>
+        <h1>Nhập Thông Tin Sản Phẩm</h1>
+    </header>
+    <nav>
+        <ul>
+            <li><a href="/">Trang chủ</a></li>
+            <li><a href="/cart">Giỏ Hàng</a></li>
+            <li><a href="/">Thông Tin</a></li>
+            <li><a href="/manager">Quản trị</a></li>
+        </ul>
+    </nav>
+    <div class="container mt-5">
+        <!-- Form để nhập thông tin sản phẩm -->
+        <form method="post" enctype="multipart/form-data" class="container-edit" action="{% url 'add_product' %}">
+            {% csrf_token %}
+            <div class="contain-form">
+                <div class="contain-form-1">
+                    <!-- Tên sản phẩm -->
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Tên Sản Phẩm</label>
+                        <input type="text" class="form-control" id="name" name="name">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Loại Sản Phẩm</label>
+                        <select id="categorySelect" class="form-control" name="category_id" onchange="toggleDescription()">
+                            <option value="">Chọn một Category</option>
+                            {% for category in categories %}
+                                <option value="{{ category.id }}" data-type="{{ category.type_product }}">{{ category.type_product }} - {{ category.name }}</option>
+                            {% endfor %}
+                        </select>                        
+                    </div>
+                    <!-- Mô tả sản phẩm -->
+                    <div class="mb-3 author-container" style="display: none;">
+                        <label for="description" class="form-label">Tác giả</label>
+                        <input type="text" class="form-control" id="author" name="author" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Mô Tả Sản Phẩm</label>
+                        <textarea class="form-control text-area" id="description" name="description"
+                            required></textarea>
+                    </div>
+
+                    <!-- Giá sản phẩm -->
+                    <div class="mb-3">
+                        <label for="price" class="form-label">Giá Sản Phẩm</label>
+                        <input type="number" class="form-control" id="price" name="price" required>
+                    </div>
+                </div>
+
+                <div class="contain-form-2">
+                    <div class="mb-3">
+                        <label for="image" class="form-label">Hình Ảnh Sản Phẩm</label>
+                        <input type="file" class="form-control" id="image" name="image" accept="image/*"
+                            onchange="displayImage(this)">
+                        <img id="preview-image" src="{% if product.image %}{{ product.image.url }}{% endif %}"
+                            alt="Ảnh Sản Phẩm" style="width: 90%;">
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Hình ảnh sản phẩm -->
+
+
+            <!-- Nút Submit -->
+            <button type="submit" class="btn btn-primary">Thêm Sản Phẩm</button>
+        </form>
+    </div>
+
+    <footer>
+        <p>&copy; 2023 Công ty ABC</p>
+    </footer>
+    {% endblock %}
+    <script>
+        function toggleDescription() {
+            var select = document.getElementById('categorySelect');
+            var selectedOption = select.options[select.selectedIndex];
+            var type = selectedOption.getAttribute('data-type');
+
+            // Kiểm tra nếu type là Book thì hiển thị, ngược lại thì ẩn
+            if (type === 'Book') {
+                document.querySelector('.author-container').style.display = 'block';
+            } else {
+                document.querySelector('.author-container').style.display = 'none';
+            }
+        }
+        function displayAlert() {
+            var message = '{{ message }}';
+            if (message != 'False') {
+                alert(message);
+            }
+        }
+
+        window.onload = displayAlert; // Hiển thị alert sau khi trang đã tải xong
+
+        function displayImage(input) {
+            var previewImage = document.getElementById('preview-image');
+
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    previewImage.src = e.target.result;
+                    previewImage.style.display = 'block';
+                };
+
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                previewImage.src = '';
+
+            } previewImage.style.display = 'none';
+        }
+    </script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</body>
+
+</html>

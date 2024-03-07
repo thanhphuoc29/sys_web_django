@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Shop</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .search-container {
+            margin: 0 auto;
+            width: fit-content;
+            display: flex;
+
+        }
+
+        .search-container input {
+            width: 20vw;
+        }
+
+        .search-container button {
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            background-color: #7f8c8d;
+            color: white;
+            transition: transform 0.3s ease, background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #2c3e50;
+            transform: scale(1.03);
+            /* Khi di chuột vào, nút sẽ to ra một chút */
+        }
+
+        .search-container select,
+        input {
+            padding: 10px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: white;
+            cursor: pointer;
+        }
+
+        .container-input {
+            display: flex;
+            flex-direction: column;
+            max-width: 30vw;
+        }
+
+        #form-search {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: flex-start;
+            /* Sắp xếp các items từ bên trái */
+        }
+
+        /* Áp dụng cho phần chính chứa sản phẩm */
+        main {
+            display: flex;
+            flex-wrap: wrap;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        /* Thiết kế container cho sản phẩm */
+        .container-product {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 25px;
+            /* Khoảng cách giữa các mục */
+            padding: 0;
+            /* Xóa padding mặc định */
+            list-style: none;
+            /* Xóa kiểu danh sách mặc định */
+        }
+
+        /* Thiết kế cho từng mục sản phẩm */
+        .container-product li {
+            background: #f9f9f9;
+            border-radius: 8px;
+            /* overflow: hidden; */
+            box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            flex: 1 1 calc(33.333% - 25px);
+            /* Chiếm khoảng 1/3 hàng, trừ đi khoảng cách */
+            display: flex;
+            /* Sử dụng flexbox để căn chỉnh nội dung bên trong mỗi li */
+            flex-direction: column;
+            /* Sắp xếp nội dung theo chiều dọc */
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            /* Căn giữa nội dung theo chiều ngang */
+        }
+
+        .container-product li:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Thiết kế hình ảnh sản phẩm */
+        .container-product img {
+            max-height: 200px;
+            /* Tăng kích thước này để làm hình ảnh lớn hơn */
+            width: 150%;
+            /* Để hình ảnh tự động điều chỉnh kích thước theo chiều rộng của mục li */
+            height: auto;
+            /* Giữ tỷ lệ hình ảnh */
+            object-fit: cover;
+            padding-top: 15px;
+            /* Đảm bảo hình ảnh phủ kín không gian mà không mất tỷ lệ */
+        }
+
+        /* Thiết kế tiêu đề và thông tin giá của sản phẩm */
+        .container-product h3,
+        .container-product p {
+            padding: 10px 15px;
+            margin: 0;
+            text-align: center;
+        }
+
+        .container-product h3 {
+            color: #333;
+            font-size: 1.2em;
+        }
+
+        .container-product p {
+            color: #666;
+            font-size: 1em;
+        }
+
+
+        /* Trạng thái ban đầu của nút */
+        #voiceSearchBtn {
+            margin-left: 5px;
+            cursor: pointer;
+            /* Màu nền ban đầu */
+            border: none;
+            padding: 10px;
+            border-radius: 50%;
+        }
+
+        /* Hiệu ứng đang lắng nghe */
+        #voiceSearchBtn.listening {
+            background-color: #ff3b3b;
+            /* Màu nền khi đang lắng nghe */
+            animation: pulse 1s infinite;
+        }
+
+        /* Animation 'pulse' */
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.1);
+                opacity: 0.7;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Smart Shop</h1>
+    </header>
+    <nav>
+        <ul>
+            <li><a href="/">Trang chủ</a></li>
+            <li><a href="/cart">Giỏ Hàng</a></li>
+            <li><a href="/">Thông Tin</a></li>
+            <li><a href="/manager">Quản trị</a></li>
+        </ul>
+    </nav>
+    <div class="search-container">
+        <form id="form-search" enctype="multipart/form-data">
+            <div class="container-input">
+                <input type="text" placeholder="Tìm kiếm..." name="search" id="search-input"
+                    onchange="displayImage(this)">
+                <img id="preview-image" src="" alt="Ảnh Sản Phẩm" style="width: 80px;display: none;" name="image">
+
+            </div>
+
+            <!-- Thêm hộp chọn tìm kiếm -->
+            <select name="search-type" id="search-type">
+                <option value="keyword" selected>Tìm kiếm theo từ khóa</option>
+                <option value="image">Tìm kiếm theo hình ảnh</option>
+            </select>
+            <button type="submit">Tìm</button>
+        </form>
+        <button id="voiceSearchBtn"><i class="fa-solid fa-microphone"></i></button>
+    </div>
+
+    <!-- <main>
+        <ul class="container-product">
+            {% for product in products %}
+            <li>
+                <a href="/product/{{ product.id }}/">
+                    <img src="{% if product.image %}{{ product.image.url }}{% endif %}" alt="{{ product.name }}"
+                        style="width: 15vw;">
+                    <h3>{{ product.name }}</h3>
+                    <p>Giá: ${{ product.price }}</p>
+
+                </a>
+
+            </li>
+            {% endfor %}
+        </ul>
+    </main> -->
+    <main class="main-container">
+        {% for cat_item in category_items %}
+        <div>
+            <h2>{{ cat_item.category.name }}</h2>
+            <ul class="container-product">
+                {% for item in cat_item.items %}
+                <li>
+                    <!-- Giả sử cả Product và Book đều có trường 'name' và 'price' -->
+                    <a href="/product/{{ item.id }}/">
+                        <img src="{% if item.image %}{{ item.image.url }}{% endif %}" alt="{{ item.name }}"
+                            style="width: 180px;">
+                        <h3>{{ item.name }}</h3>
+                        <p>Giá: ${{ item.price }}</p>
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        {% endfor %}
+    </main>
+
+    <footer>
+        <p>© 2024 Trang Chủ</p>
+    </footer>
+    <script type="text/javascript">
+        var product = products
+        console.log(product);
+    </script>
+
+
+    <script src="https://kit.fontawesome.com/2292a132f2.js" crossorigin="anonymous"></script>
+    <script>
+        function displayImage(input) {
+            var searchInput = document.getElementById('search-type');
+
+            if (searchInput.value == 'image') {
+                console.log('show img')
+                var previewImage = document.getElementById('preview-image');
+
+                if (input.files && input.files[0]) {
+                    var reader = new FileReader();
+
+                    reader.onload = function (e) {
+                        previewImage.src = e.target.result;
+                        previewImage.style.display = 'block';
+                    };
+
+                    reader.readAsDataURL(input.files[0]);
+                } else {
+                    previewImage.src = '';
+
+                }
+            }
+
+        }
+        document.getElementById('search-type').addEventListener('change', function () {
+            var searchInput = document.getElementById('search-input');
+            var voice = document.getElementById('voiceSearchBtn');
+            if (this.value === 'image') {
+                voice.style.display = 'none'
+                // Thay đổi sang input cho tải ảnh lên
+                searchInput.type = 'file';
+                searchInput.style.width = '10vw';
+                searchInput.accept = 'image/*'; // Chỉ cho phép tải ảnh lên
+                searchInput.placeholder = 'Tải ảnh lên...';
+                searchInput.name = 'image'; // Cập nhật name để phù hợp với việc xử lý ảnh
+            } else {
+                // Thay đổi trở lại sang nhập từ khóa
+                voice.style.display = 'block'
+                searchInput.style.width = '20vw';
+                searchInput.type = 'text';
+                searchInput.placeholder = 'Tìm kiếm...';
+                searchInput.name = 'search'; // Đảm bảo name phù hợp với việc tìm kiếm từ khóa
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('form-search');
+            const searchTypeSelect = document.getElementById('search-type');
+            form.method = 'GET';
+            form.action = '{% url "search_by_key" %}'; // Đảm bảo Django đã render URL này
+            searchTypeSelect.addEventListener('change', function () {
+                if (this.value === 'keyword') {
+                    form.method = 'GET';
+                    form.action = '{% url "search_by_key" %}'; // Đảm bảo Django đã render URL này
+                } else {
+                    form.method = 'POST';
+                    form.action = '{% url "search_by_image" %}'; // Đảm bảo Django đã render URL này
+                    // Thêm token CSRF cho POST request
+                    const csrfToken = getCookie('csrftoken'); // Hàm getCookie cần được định nghĩa để lấy CSRF token từ cookie
+                    if (!document.querySelector('[name=csrfmiddlewaretoken]')) {
+                        const inputCsrf = document.createElement('input');
+                        inputCsrf.setAttribute('type', 'hidden');
+                        inputCsrf.setAttribute('name', 'csrfmiddlewaretoken');
+                        inputCsrf.setAttribute('value', csrfToken);
+                        form.appendChild(inputCsrf);
+                    }
+                }
+            });
+
+            // Hàm lấy CSRF token từ cookie
+            function getCookie(name) {
+                let cookieValue = null;
+                console.log(document.cookie)
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        // Does this cookie string begin with the name we want?
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+        });
+        var voiceSearchBtn = document.getElementById('voiceSearchBtn');
+        var listening = false; // Trạng thái lắng nghe
+        var recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        recognition.lang = 'vi'
+        recognition.interimResults = false; // Chỉ quan tâm đến kết quả cuối cùng
+
+        voiceSearchBtn.addEventListener('click', function () {
+            // Nếu không đang lắng nghe, bắt đầu lắng nghe
+            if (!listening) {
+                this.classList.add('listening');
+                listening = true;
+                // Bắt đầu nhận dạng giọng nói tại đây
+                recognition.start();
+            } else {
+                // Nếu đang lắng nghe, dừng lắng nghe
+                this.classList.remove('listening');
+                listening = false;
+                // Dừng nhận dạng giọng nói tại đây
+                recognition.stop();
+            }
+        });
+
+        // Đảm bảo bạn đã khởi tạo SpeechRecognition và xử lý sự kiện onstart và onend
+        // để cập nhật trạng thái 'listening' phù hợp
+        recognition.onstart = function () {
+            voiceSearchBtn.classList.add('listening');
+            listening = true;
+        };
+
+        recognition.onend = function () {
+            voiceSearchBtn.classList.remove('listening');
+
+            listening = false;
+        };
+        recognition.onresult = function (event) {
+            var voiceText = event.results[0][0].transcript; // Lấy văn bản từ giọng nói
+
+            // Đặt văn bản vào input tìm kiếm (nếu bạn muốn hiển thị cho người dùng)
+            document.getElementById('search-input').value = voiceText;
+
+            // Thực hiện tìm kiếm sản phẩm dựa trên văn bản
+            searchVoice(voiceText)
+        };
+
+        function updateProductList(categories) {
+            const container = document.querySelector('.main-container');
+            container.innerHTML = ''; // Xóa danh sách sản phẩm hiện tại
+
+            categories.forEach(cat_item => {
+                const productElement = document.createElement('div');
+                const categoryTitle = document.createElement('h2');
+                categoryTitle.textContent = cat_item.category.name;
+                productElement.appendChild(categoryTitle);
+
+                const itemElement = document.createElement('ul');
+                itemElement.classList.add('container-product');
+
+                cat_item.items.forEach(item => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                <a href="/product/${item.id}/">
+                    <img src="${item.image ? item.image : ''}" alt="${item.name}" style="width: 180px;">
+                    <h3>${item.name}</h3>
+                    <p>Giá: $${item.price}</p>
+                </a>
+            `;
+                    itemElement.appendChild(li); // Thêm mỗi item vào danh sách ul
+                });
+
+                productElement.appendChild(itemElement); // Thêm danh sách ul vào div
+                container.appendChild(productElement); // Thêm div vào container chính
+            });
+        }
+
+
+        function searchVoice() {
+            var csrf_token = "{{ csrf_token }}";
+            console.log(csrf_token)
+            var key = document.getElementById('search-input').value
+            console.log(key)
+            fetch(`http://127.0.0.1:8000/search_by_voice/?search=${key}&search-type=keyword`)
+                .then((response) => response.json())
+                .then((data) => {
+                    console.log(data)
+                    updateProductList(data)
+                })
+        }
+
+    </script>
+
+</body>
+
+</html>

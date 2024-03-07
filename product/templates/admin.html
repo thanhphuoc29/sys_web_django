@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administrator</title>
+    <link rel="stylesheet" href="/static/css/admin.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+
+<body>
+    <header>
+        <h1>Administrator</h1>
+    </header>
+    <nav>
+        <ul>
+            <li><a href="/">Trang chủ</a></li>
+            <li><a href="/cart">Giỏ Hàng</a></li>
+            <li><a href="/">Thông Tin</a></li>
+            <li><a href="/manager">Quản trị</a></li>
+        </ul>
+    </nav>
+
+    <section class="product-description">
+        <table class="table">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Tên sản phẩm</th>
+                    <th scope="col">Mô tả</th>
+                    <th scope="col">Đơn giá</th>
+                    <th scope="col">Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                <tr>
+                    <th scope="row">{{product.id}}</th>
+                    <td>{{product.name}}</td>
+                    <td>
+                        <pre class="time-new">{{product.description}}</pre>
+                        
+                    </td>
+                    <td>{{product.price}}$</td>
+                    <td>
+                        <button class="btn btn-primary" onclick="editProduct(`{{product.id}}`)">Sửa</button>
+                        <button class="btn btn-danger" onclick="deleteProduct(`{{product.id}}`)">Xóa</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <button class="btn btn-primary" onclick="addProduct()">Thêm sản phẩm</button>
+    </section>
+
+    <footer>
+        <p>&copy; 2023 Công ty ABC</p>
+    </footer>
+    <script>
+        function editProduct(id) {
+            // Lấy thông tin sản phẩm từ phần tử input ẩn
+            // Chuyển hướng đến trang sửa sản phẩm với thông tin sản phẩm
+            window.location.href = "/edit/"+id;
+        }
+        function deleteProduct(id) {
+            // Lấy thông tin sản phẩm từ phần tử input ẩn
+            // Chuyển hướng đến trang sửa sản phẩm với thông tin sản phẩm
+            window.location.href = "/delete/"+id;
+        }
+        function addProduct() {
+            window.location.href = "/add";
+        }
+
+    </script>
+    <!-- Bootstrap JS, Popper.js, và jQuery -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</body>
+
+</html>
